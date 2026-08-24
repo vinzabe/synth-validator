@@ -1,0 +1,37 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install -e ".[dev]"
+      - name: ruff
+        run: ruff check src tests
+      - name: mypy (strict)
+        if: matrix.python-version == '3.12'
+        run: mypy --strict src/synthval
+      - name: tests + coverage
+        run: pytest --cov=synthval --cov-report=term-missing --cov-fail-under=88
+
+  demo-compare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: python -m pip install -e .
+      - name: the copying generator must FAIL despite the best fidelity
+        run: |
+          python -m synthval compare
+          python -m synthval validate --generator copy && exit 1 || echo "memorisation correctly flagged"
+          python -m synthval validate --generator noisy

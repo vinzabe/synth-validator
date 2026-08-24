@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "synth-validator"
+version = "1.0.0"
+description = "Synthetic data validator that reports fidelity, privacy, and utility as three SEPARATE scores — because a single quality number hides the fact that perfect fidelity means you leaked the original data."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "vinzabe", email = "gabejar@usa.com" }]
+keywords = ["privacy", "synthetic-data", "machine-learning", "membership-inference", "evaluation"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Information Technology",
+  "Topic :: Security",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+dependencies = ["numpy>=1.24"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-cov", "hypothesis>=6", "mypy>=1.8", "ruff>=0.5"]
+
+[project.scripts]
+synthval = "synthval.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/vinzabe/synth-validator"
+Issues = "https://github.com/vinzabe/synth-validator/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/synthval"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+packages = ["synthval"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "ARG"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E402", "S101", "ARG001", "ARG002", "ARG005", "F841"]
